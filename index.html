@@ -1,0 +1,172 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <script type="application/javascript">
+      const body = document.querySelector('body');
+      body.style.fontFamily = 'Arial, sans-serif';
+      body.style.backgroundColor = '#34495E';
+      body.style.padding = '50px';
+
+      const container = document.createElement('div');
+      container.style.backgroundColor = '#fff';
+      container.style.borderRadius = '10px';
+      container.style.padding = '10px';
+
+      const form = document.createElement('form');
+      form.style.display = 'flex';
+      form.style.justifyContent = 'center';
+      form.style.alignItems = 'center';
+      form.style.marginBottom = '20px';
+
+      const input_name = document.createElement('input');
+      input_name.type = 'text';
+      input_name.style.border = 'none';
+      input_name.placeholder = 'Name';
+      input_name.style.border = '2px solid #212F3C ';
+      input_name.style.borderRadius = '5px';
+      input_name.style.width = '100px';
+      input_name.style.padding = '10px';
+      input_name.style.marginRight = '10px';
+
+      const input_text = document.createElement('input');
+      input_text.type = 'text';
+      input_text.style.border = 'none';
+      input_text.style.borderRadius = '5px';
+      input_text.placeholder = 'Message';
+      input_text.style.border = '2px solid #212F3C';
+      input_text.style.width = '300px';
+      input_text.style.padding = '10px';
+      input_text.style.marginRight = '10px';
+
+      const button = document.createElement('button');
+      button.innerText = 'SEND';
+      button.style.border = 'none';
+      button.style.borderRadius = '5px';
+      button.style.padding = '10px 20px';
+      button.style.backgroundColor = '#212F3C ';
+      button.style.color = '#fff';
+      button.style.cursor = 'pointer';
+      
+      form.append(input_name);
+      form.append(input_text);
+      form.append(button);
+
+      const ul = document.createElement('ul');
+      ul.style.listStyle = 'none';
+      ul.style.wordBreak = 'break-word';
+
+      const Message = (text, user) => {
+        const userColors = {};
+
+        const li = document.createElement('li');
+        li.style.marginBottom = '20px';
+        li.style.backgroundColor = '#F2F3F4';
+        li.style.borderRadius = '5px';
+        
+        const userSpan = document.createElement('span');
+
+        if (user.trim() === '') {
+          user = 'Anonymous';
+        }
+
+         // Obtener el color del usuario, o generar uno nuevo si no existe
+        let color = userColors[user];
+        if (!color) {
+          color = `hsl(${Math.floor(Math.random() * 360)}, 50%, 50%)`; // Generar un color aleatorio
+          userColors[user] = color; // Guardar el color para el usuario
+        }
+
+        userSpan.append(`${user}: `);
+        userSpan.style.fontWeight = 'bold';
+        userSpan.style.color = color; // Asignar el color al usuario
+
+        li.append(userSpan);
+
+        const messageText = document.createElement('span');
+  
+        // Buscar URLs de imagen en el mensaje de texto
+        const imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif))/i;
+        const imageUrl = text.match(imageRegex); 
+
+        // Buscar URLs en el mensaje de texto
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const urls = text.match(urlRegex);
+        
+        if (imageUrl) { 
+          // Si se encuentra una URL de imagen, crear una vista previa
+          const imagePreview = document.createElement('img');
+          imagePreview.src = imageUrl[0]; 
+          imagePreview.style.maxWidth = '100px'; // Establecer un ancho máximo para la imagen
+          messageText.append(imagePreview);
+
+        } else {
+          // Si no se encuentra una URL de imagen, mostrar solo el texto del mensaje
+          messageText.append(text);
+        }
+        li.append(messageText);
+        return li;
+      }
+
+      const getMessages = async () => {
+        const response = await fetch('http://uvgenios.online/api/messages');
+        const messages = await response.json();
+
+
+        const lis = messages.map((message) => Message(message.text, message.user));
+        lis.forEach((li) => ul.append(li));
+
+
+      }
+
+      const postMessage = async (user, text) => {
+        const body = {
+          text,
+          user
+        };
+        const response = await fetch('http://uvgenios.online/api/messages', {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        return response;
+      }
+
+      getMessages();
+
+      button.addEventListener('click', async (event) => { 
+        event.preventDefault();  
+
+        await postMessage(input_name.value,input_text.value); 
+        ul.innerHTML = ""; //Se limpia la lista de mensajes
+        getMessages(); //Se actualiza la lista de mensajes
+        input_text.value = "";
+        input_name.value = "";
+      });
+
+      input_text.addEventListener('input', () => {
+      const value = input_text.value;
+      const maxLength = 140;
+      if (value.length > maxLength) {
+        alert("You have exceeded the maximum number of characters allowed")
+        input_text.value = value.substring(0, maxLength);
+      }
+    });
+
+    input_text.addEventListener('keydown', (event) => {
+      if (event.keyCode === 13) {
+        event.preventDefault(); 
+        button.click();
+      }
+    });
+
+      container.append(ul);
+      container.append(form);
+      body.append(container);
+
+    </script>
+
+</body>
+</html>
