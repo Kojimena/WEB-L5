@@ -3,10 +3,11 @@
   </head>
   <body>
     <script type="application/javascript">
+
       const body = document.querySelector('body');
       body.style.fontFamily = 'Arial, sans-serif';
       body.style.backgroundColor = '#34495E';
-      body.style.padding = '50px';
+      body.style.padding = '50px';      
 
       const container = document.createElement('div');
       container.style.backgroundColor = '#fff';
@@ -47,14 +48,31 @@
       button.style.backgroundColor = '#212F3C ';
       button.style.color = '#fff';
       button.style.cursor = 'pointer';
+
+      const title = document.createElement('h1');
+      title.innerText = 'ChatwithMe';
+      title.style.textAlign = 'center';
+      title.style.color = '#fff';
+      title.style.marginBottom = '20px';
+
+      // Arreglo de colores para la animación colores pastel 
+      const colors = ['#F1C40F', '#E67E22', '#E74C3C', '#9B59B6', '#2980B9', '#1ABC9C', '#2ECC71'];
+
+      let index = 0;
+      // Cambiar el color del título cada 500ms
+      setInterval(() => {
+        title.style.color = colors[index];
+        index = (index + 1) % colors.length;
+      }, 500);
+
+      const ul = document.createElement('ul');
+      ul.style.listStyle = 'none';
+      ul.style.wordBreak = 'break-word';
       
       form.append(input_name);
       form.append(input_text);
       form.append(button);
 
-      const ul = document.createElement('ul');
-      ul.style.listStyle = 'none';
-      ul.style.wordBreak = 'break-word';
 
       const Message = (text, user) => {
         const userColors = {};
@@ -63,6 +81,8 @@
         li.style.marginBottom = '20px';
         li.style.backgroundColor = '#F2F3F4';
         li.style.borderRadius = '5px';
+        li.style.display = 'flex';
+        li.style.flexDirection = 'column';
         
         const userSpan = document.createElement('span');
 
@@ -84,14 +104,10 @@
         li.append(userSpan);
 
         const messageText = document.createElement('span');
-  
+
         // Buscar URLs de imagen en el mensaje de texto
         const imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif))/i;
         const imageUrl = text.match(imageRegex); 
-
-        // Buscar URLs en el mensaje de texto
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        const urls = text.match(urlRegex);
         
         if (imageUrl) { 
           // Si se encuentra una URL de imagen, crear una vista previa
@@ -100,8 +116,30 @@
           imagePreview.style.maxWidth = '100px'; // Establecer un ancho máximo para la imagen
           messageText.append(imagePreview);
 
-        } else {
-          // Si no se encuentra una URL de imagen, mostrar solo el texto del mensaje
+        } else if (text.includes("http://") || text.includes("https://") || text.includes("www.")) {
+
+            //creacion del preview de la pagina
+            const iframe = document.createElement('iframe')
+              iframe.setAttribute('src', text)
+              iframe.setAttribute('width', '500px')
+              iframe.setAttribute('height', '200px')
+              li.append(iframe)
+
+              //crear un boton para abrir la pagina en una nueva ventana
+              const button = document.createElement('button')
+              button.innerText = 'Open in new window'
+              button.style.width = '500px'
+              button.style.backgroundColor = '#212F3C '
+              button.style.color = '#fff'
+              button.style.borderRadius = '5px'
+              button.addEventListener('click', () => {
+                window.open(text)
+              })
+              //poner el boton abajo del iframe
+              li.append(button)
+        }
+         else {
+          // Si no se encuentra una URL de imagen o página, mostrar solo el texto del mensaje
           messageText.append(text);
         }
         li.append(messageText);
@@ -112,11 +150,11 @@
         const response = await fetch('http://uvgenios.online/api/messages');
         const messages = await response.json();
 
-
         const lis = messages.map((message) => Message(message.text, message.user));
         lis.forEach((li) => ul.append(li));
 
-
+        //navegar hacia abajo de la pagina
+        window.scrollTo(0,document.body.scrollHeight);
       }
 
       const postMessage = async (user, text) => {
@@ -164,6 +202,7 @@
 
       container.append(ul);
       container.append(form);
+      body.append(title);
       body.append(container);
 
     </script>
