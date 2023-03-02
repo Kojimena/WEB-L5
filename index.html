@@ -83,6 +83,7 @@
         li.style.borderRadius = '5px';
         li.style.display = 'flex';
         li.style.flexDirection = 'column';
+
         
         const userSpan = document.createElement('span');
 
@@ -153,8 +154,9 @@
         const lis = messages.map((message) => Message(message.text, message.user));
         lis.forEach((li) => ul.append(li));
 
-        //navegar hacia abajo de la pagina
+        //navegar hasta en donde se envía el mensaje
         window.scrollTo(0,document.body.scrollHeight);
+
       }
 
       const postMessage = async (user, text) => {
@@ -184,8 +186,8 @@
         input_name.value = "";
       });
 
-      input_text.addEventListener('input', () => {
-      const value = input_text.value;
+      input_text.addEventListener('input', () => { //Se limita el número de caracteres
+      const value = input_text.value; //Se obtiene el valor del input
       const maxLength = 140;
       if (value.length > maxLength) {
         alert("You have exceeded the maximum number of characters allowed")
@@ -193,8 +195,8 @@
       }
     });
 
-    input_text.addEventListener('keydown', (event) => {
-      if (event.keyCode === 13) {
+    input_text.addEventListener('keydown', (event) => { //Se envía el mensaje al presionar enter
+      if (event.keyCode === 13) { // 13 es el código de la tecla enter
         event.preventDefault(); 
         button.click();
       }
